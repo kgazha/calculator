@@ -9,9 +9,9 @@ namespace Calculator
         Number,
         LeftBracket,
         RightBracket,
-        Addition,
-        Subtraction,
         Multiplication,
-        Division
+        Division,
+        Addition,
+        Subtraction
     }
 }
