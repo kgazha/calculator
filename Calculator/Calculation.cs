@@ -28,17 +28,14 @@ namespace Calculator
             precedences.Add(Token.RightBracket, 1);
         }
 
-        public double Run(string expression)
+        public double GetResult(string expression)
         {
             var output = new List<Symbol>();
             var operatorStack = new Stack<Symbol>();
 
             Parser parser = new Parser();
 
-
             List<Symbol> symbols = parser.Parse(expression);
-
-            // TODO: validation
 
             foreach (var symbol in symbols)
             {

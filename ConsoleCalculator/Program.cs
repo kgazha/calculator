@@ -12,7 +12,7 @@ namespace ConsoleCalculator
             Calculation calculation = new Calculation();
             try
             {
-                var result = calculation.Run(expression);
+                var result = calculation.GetResult(expression);
                 Console.WriteLine("Resutlt: " + result);
             }
             catch (Exception ex)
