@@ -74,7 +74,7 @@ namespace Calculator
             numbers.Push(new Symbol() { Token = Token.Number, Value = result.ToString() });
         }
 
-        private bool CurrentHasHigherPrecendence(Symbol previousSymbol, Symbol currentSymbol)
+        private bool CurrentHasSameOrHigherPrecendence(Symbol previousSymbol, Symbol currentSymbol)
         {
             if (!precedences.ContainsKey(previousSymbol.Token) |
                 !precedences.ContainsKey(currentSymbol.Token))
@@ -107,16 +107,17 @@ namespace Calculator
             {
                 operatorStack.Push(symbol);
             }
-            else if (CurrentHasHigherPrecendence(operatorStack.Peek(), symbol))
+            else if (CurrentHasSameOrHigherPrecendence(operatorStack.Peek(), symbol))
             {
                 operatorStack.Push(symbol);
             }
             else
             {
-                while (!CurrentHasHigherPrecendence(operatorStack.Peek(), symbol) 
-                    & operatorStack.Any())
+                while (!CurrentHasSameOrHigherPrecendence(operatorStack.Peek(), symbol))
                 {
                     output.Add(operatorStack.Pop());
+                    if (!operatorStack.Any())
+                        break;
                 }
                 operatorStack.Push(symbol);
             }
