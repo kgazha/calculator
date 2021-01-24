@@ -10,10 +10,10 @@ namespace CalculatorTests
         [Fact]
         public void ComputeTest()
         {
-            //string expression = "2 + (3 * 8 - 4)*2";
-            //Calculation calculation = new Calculation();
-            //var result = calculation.Compute(expression);
-            //Assert.Equal(42, result);
+            string expression = "2 + (3 * 8 - 4)*2";
+            Calculation calculation = new Calculation();
+            var result = calculation.Run(expression);
+            Assert.Equal(42, result);
         }
     }
 }

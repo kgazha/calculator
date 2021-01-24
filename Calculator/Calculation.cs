@@ -24,11 +24,12 @@ namespace Calculator
             precedences.Add(Token.Division, 3);
             precedences.Add(Token.Addition, 2);
             precedences.Add(Token.Subtraction, 2);
+            precedences.Add(Token.LeftBracket, 1);
+            precedences.Add(Token.RightBracket, 1);
         }
 
-        public double Compute(string expression)
+        public double Run(string expression)
         {
-            var result = 0.0;
             var output = new List<Symbol>();
             var operatorStack = new Stack<Symbol>();
 
@@ -43,9 +44,34 @@ namespace Calculator
             {
                 DistributeSymbols(symbol, output, operatorStack);
             }
+            while (operatorStack.Any())
+            {
+                output.Add(operatorStack.Pop());
+            }
+            return Compute(output);
+        }
 
+        private double Compute(List<Symbol> symbols)
+        {
+            var result = symbols.Aggregate(new Stack<Symbol>(), (numbers, symbol) =>
+            {
+                UpdateResultStack(numbers, symbol);
+                return numbers;
+            });
+            return Convert.ToDouble(result.Pop().Value);
+        }
 
-            return result;
+        private void UpdateResultStack(Stack<Symbol> numbers, Symbol symbol)
+        {
+            if (symbol.Token == Token.Number)
+            {
+                numbers.Push(symbol);
+                return;
+            }
+            var y = Convert.ToDouble(numbers.Pop().Value);
+            var x = Convert.ToDouble(numbers.Pop().Value);
+            var result = operations[symbol.Token](x, y);
+            numbers.Push(new Symbol() { Token = Token.Number, Value = result.ToString() });
         }
 
         private bool CurrentHasHigherPrecendence(Symbol previousSymbol, Symbol currentSymbol)
@@ -55,7 +81,7 @@ namespace Calculator
             {
                 throw new Exception("Token not found");
             }
-            return precedences[previousSymbol.Token] <= precedences[currentSymbol.Token];
+            return precedences[previousSymbol.Token] < precedences[currentSymbol.Token];
         }
 
         private void DistributeSymbols(Symbol symbol, List<Symbol> output, Stack<Symbol> operatorStack)
@@ -75,6 +101,7 @@ namespace Calculator
                 {
                     output.Add(operatorStack.Pop());
                 }
+                operatorStack.Pop();
             }
             else if (!operatorStack.Any() || operatorStack.Peek().Token == Token.LeftBracket)
             {
@@ -87,7 +114,7 @@ namespace Calculator
             else
             {
                 while (!CurrentHasHigherPrecendence(operatorStack.Peek(), symbol) 
-                    & operatorStack.Count != 0)
+                    & operatorStack.Any())
                 {
                     output.Add(operatorStack.Pop());
                 }
