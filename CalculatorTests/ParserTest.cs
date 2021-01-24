@@ -14,7 +14,7 @@ namespace CalculatorTests
         {
             string expression = "3 +  4*4-( -3.4)";
             var actualResult = parser.PrepareExpression(expression);
-            var expectedResult = "3+4*4-(-3.4)";
+            var expectedResult = "3+4*4-(-3,4)";
             Assert.Equal(expectedResult, actualResult);
         }
 
@@ -55,13 +55,13 @@ namespace CalculatorTests
         [Fact]
         public void PraseTest()
         {
-            string expression = "(34.5 + -26.5)*-2";
+            string expression = "(34,5 + -26,5)*-2";
             var actualResult = parser.Parse(expression);
             var expectedResult = new List<Symbol>() {
                 new Symbol() { Token=Token.LeftBracket, Value="(" },
-                new Symbol() { Token=Token.Number, Value="34.5" },
+                new Symbol() { Token=Token.Number, Value="34,5" },
                 new Symbol() { Token=Token.Addition, Value="+" },
-                new Symbol() { Token=Token.Number, Value="-26.5" },
+                new Symbol() { Token=Token.Number, Value="-26,5" },
                 new Symbol() { Token=Token.RightBracket, Value=")" },
                 new Symbol() { Token=Token.Multiplication, Value="*" },
                 new Symbol() { Token=Token.Number, Value="-2" },
