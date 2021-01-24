@@ -11,7 +11,7 @@ namespace Calculator
         public Parser()
         {
             patterns = new Dictionary<string, Token>();
-            patterns.Add(@"^-?\d+(\.\d+)?", Token.Number);
+            patterns.Add(@"^-?\d+(\.\d+)?", Token.Number);  // Positive or negative real number
             patterns.Add(@"^\(", Token.LeftBracket);
             patterns.Add(@"^\)", Token.RightBracket);
             patterns.Add(@"^\+", Token.Addition);
@@ -22,7 +22,7 @@ namespace Calculator
 
         public string PrepareExpression(string expression)
         {
-            return Regex.Replace(expression, @"\s+", "");
+            return Regex.Replace(expression, @"\s+", "");   // Remove all spaces
         }
 
         private bool PreviousIsNumber(List<Symbol> symbols)
