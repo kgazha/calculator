@@ -1,4 +1,5 @@
 using Calculator;
+using Calculator.Interfaces;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -22,7 +23,7 @@ namespace CalculatorTests
         public void SubstractionPositiveNumberTest()
         {
             string expression = "3-4";
-            var actualResult = parser.Parse(expression);
+            var actualResult = parser.Parse(expression, new Operation());
             var expectedResult = new List<Symbol>() {
                 new Symbol() { Token=Token.Number, Value="3" },
                 new Symbol() { Token=Token.Subtraction, Value="-" },
@@ -39,7 +40,7 @@ namespace CalculatorTests
         public void SubstractionNegativeNumberTest()
         {
             string expression = "3--4";
-            var actualResult = parser.Parse(expression);
+            var actualResult = parser.Parse(expression, new Operation());
             var expectedResult = new List<Symbol>() {
                 new Symbol() { Token=Token.Number, Value="3" },
                 new Symbol() { Token=Token.Subtraction, Value="-" },
@@ -56,7 +57,7 @@ namespace CalculatorTests
         public void PraseTest()
         {
             string expression = "(34,5 + -26,5)*-2";
-            var actualResult = parser.Parse(expression);
+            var actualResult = parser.Parse(expression, new Operation());
             var expectedResult = new List<Symbol>() {
                 new Symbol() { Token=Token.LeftBracket, Value="(" },
                 new Symbol() { Token=Token.Number, Value="34,5" },

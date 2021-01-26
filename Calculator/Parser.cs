@@ -1,25 +1,12 @@
-﻿using System;
+﻿using Calculator.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Calculator
 {
-    public class Parser
+    public class Parser : IParser
     {
-        public Dictionary<string, Token> patterns;
-
-        public Parser()
-        {
-            patterns = new Dictionary<string, Token>();
-            patterns.Add(@"^-?\d+(\,\d+)?", Token.Number);  // Positive or negative real number
-            patterns.Add(@"^\(", Token.LeftBracket);
-            patterns.Add(@"^\)", Token.RightBracket);
-            patterns.Add(@"^\+", Token.Addition);
-            patterns.Add(@"^\-", Token.Subtraction);
-            patterns.Add(@"^\*", Token.Multiplication);
-            patterns.Add(@"^\/", Token.Division);
-        }
-
         public string PrepareExpression(string expression)
         {
             expression = Regex.Replace(expression, @"\s+", "");   // Remove all spaces
@@ -46,20 +33,19 @@ namespace Calculator
             }
             catch (Exception ex)
             {
-
                 throw ex;
             }
             return false;
         }
 
-        public List<Symbol> Parse(string expression)
+        public List<Symbol> Parse(string expression, IOperation operation)
         {
             expression = PrepareExpression(expression);
             List<Symbol> symbols = new List<Symbol>();
             while (expression != "")
             {
                 bool patternFound = false;
-                foreach (var pattern in patterns)
+                foreach (var pattern in operation.GetPatterns())
                 {
                     var result = Regex.Match(expression, pattern.Key);
                     if (result.Success)

@@ -9,7 +9,7 @@ namespace ConsoleCalculator
         {
             Console.WriteLine("Please enter your expression for calculation:");
             var expression = Console.ReadLine();
-            Calculation calculation = new Calculation();
+            Calculation calculation = new Calculation(new Parser(), new Operation());
             try
             {
                 var result = calculation.GetResult(expression);

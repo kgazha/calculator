@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Calculator.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,39 +8,24 @@ namespace Calculator
 {
     public class Calculation
     {
-        public Dictionary<Token, Func<double, double, double>> operations;
-        public Dictionary<Token, int> precedences;
+        IOperation operation;
+        IParser parser;
 
-
-        public Calculation()
+        public Calculation(IParser parser, IOperation operation)
         {
-            operations = new Dictionary<Token, Func<double, double, double>>();
-            operations.Add(Token.Addition, (double x, double y) => x + y);
-            operations.Add(Token.Subtraction, (double x, double y) => x - y);
-            operations.Add(Token.Multiplication, (double x, double y) => x * y);
-            operations.Add(Token.Division, (double x, double y) => x / y);
-
-            precedences = new Dictionary<Token, int>();
-            precedences.Add(Token.Multiplication, 3);
-            precedences.Add(Token.Division, 3);
-            precedences.Add(Token.Addition, 2);
-            precedences.Add(Token.Subtraction, 2);
-            precedences.Add(Token.LeftBracket, 1);
-            precedences.Add(Token.RightBracket, 1);
+            this.parser = parser;
+            this.operation = operation;
         }
 
         public double GetResult(string expression)
         {
+            List<Symbol> symbols = parser.Parse(expression, operation);
+
             var output = new List<Symbol>();
             var operatorStack = new Stack<Symbol>();
-
-            Parser parser = new Parser();
-
-            List<Symbol> symbols = parser.Parse(expression);
-
             foreach (var symbol in symbols)
             {
-                DistributeSymbols(symbol, output, operatorStack);
+                DistributeSymbols(symbol, output, operatorStack);  // другой класс. связывает как контроллер...
             }
             while (operatorStack.Any())
             {
@@ -48,11 +34,12 @@ namespace Calculator
             return Compute(output);
         }
 
-        private double Compute(List<Symbol> symbols)
+        public double Compute(List<Symbol> symbols)
         {
             var result = symbols.Aggregate(new Stack<Symbol>(), (numbers, symbol) =>
             {
                 UpdateResultStack(numbers, symbol);
+
                 return numbers;
             });
             return Convert.ToDouble(result.Pop().Value);
@@ -65,23 +52,29 @@ namespace Calculator
                 numbers.Push(symbol);
                 return;
             }
-            var y = Convert.ToDouble(numbers.Pop().Value);
-            var x = Convert.ToDouble(numbers.Pop().Value);
-            var result = operations[symbol.Token](x, y);
-            numbers.Push(new Symbol() { Token = Token.Number, Value = result.ToString() });
-        }
-
-        private bool CurrentHasSameOrHigherPrecendence(Symbol previousSymbol, Symbol currentSymbol)
-        {
-            if (!precedences.ContainsKey(previousSymbol.Token) |
-                !precedences.ContainsKey(currentSymbol.Token))
+            if (numbers.Count >= 2)
             {
-                throw new Exception("Token not found");
+                var y = Convert.ToDouble(numbers.Pop().Value);
+                var x = Convert.ToDouble(numbers.Pop().Value);
+                var result = operation.GetOperation(symbol.Token)(x, y);
+                numbers.Push(new Symbol() { Token = Token.Number, Value = result.ToString() });
             }
-            return precedences[previousSymbol.Token] < precedences[currentSymbol.Token];
+            else if (symbol.Token == Token.Subtraction & numbers.Any())
+            {
+                var y = Convert.ToDouble(numbers.Pop().Value);
+                numbers.Push(new Symbol() { 
+                    Token = Token.Number, 
+                    Value = (-y).ToString()
+                });
+            }
         }
 
-        private void DistributeSymbols(Symbol symbol, List<Symbol> output, Stack<Symbol> operatorStack)
+        public bool CurrentHasSameOrHigherPrecendence(Symbol previousSymbol, Symbol currentSymbol)
+        {
+            return operation.GetPrecedence(previousSymbol.Token) < operation.GetPrecedence(currentSymbol.Token);
+        }
+
+        public void DistributeSymbols(Symbol symbol, List<Symbol> output, Stack<Symbol> operatorStack)
         {
             var token = symbol.Token;
             if (token == Token.Number)
