@@ -27,7 +27,7 @@ namespace CalculatorTests
         }
 
         [Fact]
-        public void UnarMinusTest()
+        public void UnaryMinusTest()
         {
             string expression = "-(5 + 4)";
             var result = calculation.GetResult(expression);
